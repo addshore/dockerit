@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"os/signal"
 	"strings"
 	"github.com/docker/docker/api/types/strslice"
 	"bufio"
@@ -53,6 +54,19 @@ func RunNow(options RunNowOptions) (string, error) {
 	// TODO volumes
 	// TODO labels?
 	cont, err := containerCreate(cli, options)
+
+	// Handle Ctrl + C and exit (removing the container)
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func(){
+		for range c {
+			// sig is a ^C, handle it
+			cli.ContainerRemove( context.Background(), cont.ID, types.ContainerRemoveOptions{
+				Force: true,
+				} )
+			os.Exit(1)
+		}
+	}()
 
 	err = cli.ContainerStart(context.Background(), cont.ID, types.ContainerStartOptions{})
 	if err != nil {
