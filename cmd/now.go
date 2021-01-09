@@ -68,12 +68,6 @@ func RunNow(options RunNowOptions) (string, error) {
 		}
 	}()
 
-	err = cli.ContainerStart(context.Background(), cont.ID, types.ContainerStartOptions{})
-	if err != nil {
-		fmt.Println("Error Starting")
-		panic(err)
-	}
-
 	waiter, err := cli.ContainerAttach(context.Background(), cont.ID, types.ContainerAttachOptions{
 		Stderr:	   true,
 		Stdout:	   true,
@@ -81,9 +75,16 @@ func RunNow(options RunNowOptions) (string, error) {
 		Stream:	   true,
 	})
 
-	go  io.Copy(os.Stdout, waiter.Reader)
-	go  io.Copy(os.Stderr, waiter.Reader)
-	//go io.Copy(aResp.Conn, os.Stdin)
+	go io.Copy(os.Stdout, waiter.Reader)
+	go io.Copy(os.Stderr, waiter.Reader)
+
+	err = cli.ContainerStart(context.Background(), cont.ID, types.ContainerStartOptions{})
+	if err != nil {
+		fmt.Println("Error Starting")
+		panic(err)
+	}
+
+	go io.Copy(waiter.Conn, os.Stdin)
 
 	if err != nil {
 		panic(err)
