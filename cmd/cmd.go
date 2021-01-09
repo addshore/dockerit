@@ -208,9 +208,13 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 			panic(err)
 		}
 		ContainerConfig.User = usr.Uid + ":" + usr.Gid
-		// TODO die if not running as a known user?
-		// TODO check if the home dir actually exists?
 		if(fMountHome){
+			// Check the home dir exists before mounting it
+			_, err := os.Stat(usr.HomeDir)
+			if os.IsNotExist(err) {
+				fmt.Println("Homedir does not exist.")
+				panic(err)
+			}
 			HostConfig.Mounts = append(
 				HostConfig.Mounts,
 				mount.Mount{

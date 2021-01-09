@@ -55,6 +55,12 @@ Run composer version 1 info in the current working directory as the current user
 dockerit --me --pwd --home composer:1 info
 ```
 
+Run nginx as the container user and expose it on port 8080:
+
+```sh
+dockerit --port=8080:80 nginx
+```
+
 Run git in the current working directory as the current user with their home dir mounted:
 
 ```sh
