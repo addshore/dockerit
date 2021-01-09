@@ -10,5 +10,5 @@ var (
 )
 
 func main() {
-	cmd.Execute()
+	cmd.Execute(VERSION)
 }
