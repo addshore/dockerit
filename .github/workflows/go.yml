@@ -23,3 +23,15 @@ jobs:
 
     - name: Go Test
       run: go test -v ./...
+
+    - name: Goxc Install
+      run: go get github.com/laher/goxc
+
+    - name: Goxc Build
+      run: export GOPATH=$(go env GOPATH) && make build
+
+    - name: Goxc Upload Build Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: gox-build-output
+        path: build

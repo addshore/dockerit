@@ -6,7 +6,7 @@ import (
 
 var (
 	// VERSION is set during build
-	VERSION = "0.0.0"
+	VERSION = "0.0.1"
 )
 
 func main() {

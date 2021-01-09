@@ -8,6 +8,8 @@ TBA
 
 ## Features
 
+Containers are deleted after the command has run.
+
 ```
 Usage:
   dt now [flags]
@@ -75,10 +77,10 @@ There is a shortcut to help you:
 
 ### Building
 
-Built using https://github.com/mitchellh/gox and a `Makefile`
+Built using https://github.com/laher/goxc and a `Makefile`
 
 ```sh
-go get github.com/mitchellh/gox
+go get github.com/laher/goxc
 ```
 
 Then build...
