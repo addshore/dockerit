@@ -52,7 +52,6 @@ func RunNow(options RunNowOptions) (string, error) {
 	// TODO working directory
 	// TODO ports
 	// TODO volumes
-	// TODO labels?
 	cont, err := containerCreate(cli, options)
 
 	// Handle Ctrl + C and exit (removing the container)
@@ -141,6 +140,9 @@ func containerCreate(cli *client.Client, options RunNowOptions) (container.Conta
 }
 
 func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (container.ContainerCreateCreatedBody, error) {
+	labels := make(map[string]string)
+	labels["com.github/addshore/docker-thing/created-app"] = "docker-thing"
+	labels["com.github/addshore/docker-thing/created-command"] = "now"
 	return cli.ContainerCreate(
 		context.Background(),
 		&container.Config{
@@ -151,6 +153,7 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 			Tty:		 true,
 			AttachStdout:true,
 			OpenStdin:   true,
+			Labels: labels,
 		},
 		&container.HostConfig{
 		}, nil, nil, "");
