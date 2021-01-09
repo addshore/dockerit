@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"os/user"
 	"github.com/docker/docker/api/types/mount"
 	"os/signal"
 	"strings"
@@ -50,7 +51,6 @@ func RunNow(options RunNowOptions) (string, error) {
 	// TODO optionally Pull
 	//pull(cli,options);
 
-	// TODO working directory
 	// TODO ports
 	// TODO volumes
 	cont, err := containerCreate(cli, options)
@@ -144,7 +144,14 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 	pwd, err := os.Getwd()
 	if err != nil {
 		fmt.Println(err)
+		panic(err)
 	}
+	usr, err := user.Current()
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+
 	labels := make(map[string]string)
 	labels["com.github/addshore/docker-thing/created-app"] = "docker-thing"
 	labels["com.github/addshore/docker-thing/created-command"] = "now"
@@ -160,6 +167,7 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 			OpenStdin:   true,
 			Labels: labels,
 			WorkingDir: "/pwd",
+			User: usr.Uid + ":" + usr.Gid,
 		},
 		&container.HostConfig{
 			Mounts: []mount.Mount{
