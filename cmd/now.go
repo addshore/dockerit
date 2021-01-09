@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/docker/docker/api/types/mount"
 	"os/signal"
 	"strings"
 	"github.com/docker/docker/api/types/strslice"
@@ -140,6 +141,10 @@ func containerCreate(cli *client.Client, options RunNowOptions) (container.Conta
 }
 
 func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (container.ContainerCreateCreatedBody, error) {
+	pwd, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+	}
 	labels := make(map[string]string)
 	labels["com.github/addshore/docker-thing/created-app"] = "docker-thing"
 	labels["com.github/addshore/docker-thing/created-command"] = "now"
@@ -154,8 +159,16 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 			AttachStdout:true,
 			OpenStdin:   true,
 			Labels: labels,
+			WorkingDir: "/pwd",
 		},
 		&container.HostConfig{
+			Mounts: []mount.Mount{
+				{
+					Type:   mount.TypeBind,
+					Source: pwd,
+					Target: "/pwd",
+				},
+			},
 		}, nil, nil, "");
 }
 
