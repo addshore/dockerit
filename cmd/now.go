@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"io/ioutil"
 	"os/user"
 	"github.com/docker/docker/api/types/mount"
 	"os/signal"
@@ -45,6 +46,9 @@ func RunNow(options RunNowOptions) (string, error) {
 		fmt.Println("Unable to create docker client")
 		panic(err)
 	}
+	if Verbose {
+		fmt.Println("Docker client loaded");
+	}
 
 	var inout chan []byte
 
@@ -61,6 +65,9 @@ func RunNow(options RunNowOptions) (string, error) {
 	go func(){
 		for range c {
 			// sig is a ^C, handle it
+			if Verbose {
+				fmt.Println("Removing container");
+			}
 			cli.ContainerRemove( context.Background(), cont.ID, types.ContainerRemoveOptions{
 				Force: true,
 				} )
@@ -78,6 +85,9 @@ func RunNow(options RunNowOptions) (string, error) {
 	go io.Copy(os.Stdout, waiter.Reader)
 	go io.Copy(os.Stderr, waiter.Reader)
 
+	if Verbose {
+		fmt.Println("Starting container");
+	}
 	err = cli.ContainerStart(context.Background(), cont.ID, types.ContainerStartOptions{})
 	if err != nil {
 		fmt.Println("Error Starting")
@@ -121,6 +131,9 @@ func RunNow(options RunNowOptions) (string, error) {
 	case <-statusCh:
 	}
 
+	if Verbose {
+		fmt.Println("Removing container");
+	}
 	cli.ContainerRemove( context.Background(), cont.ID, types.ContainerRemoveOptions{} )
 
 	return cont.ID, nil
@@ -134,6 +147,9 @@ func containerCreate(cli *client.Client, options RunNowOptions) (container.Conta
 				panic(err)
 			}
 			// Fallback pulling the image once
+			if Verbose {
+				fmt.Println("No image, so pulling");
+			}
 			pull(cli,options);
 			return containerCreateNoPullFallback(cli, options)
 		}
@@ -141,6 +157,9 @@ func containerCreate(cli *client.Client, options RunNowOptions) (container.Conta
 }
 
 func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (container.ContainerCreateCreatedBody, error) {
+	if Verbose {
+		fmt.Println("Creating container");
+	}
 	pwd, err := os.Getwd()
 	if err != nil {
 		fmt.Println(err)
@@ -181,6 +200,7 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 }
 
 func pull(cli *client.Client, options RunNowOptions) {
+	fmt.Println("Pulling image");
 	r, err := cli.ImagePull(
 		context.Background(),
 		options.Image,
@@ -191,5 +211,9 @@ func pull(cli *client.Client, options RunNowOptions) {
 	}
 	// TODO fixme this is super verbose...
 	fmt.Println("Error Pulling")
-	io.Copy(os.Stdout, r)
+	if Verbose {
+		io.Copy(os.Stdout, r)
+	} else {
+		io.Copy(ioutil.Discard, r)
+	}
 }
