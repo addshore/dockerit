@@ -18,8 +18,29 @@ import (
 	"github.com/docker/docker/client"
 )
 
+var fPull bool
+var fUser string
+var fNoEntry bool
+var fMountPwd bool
+var fMountHome bool
+
 func init() {
 	rootCmd.AddCommand(nowCmd)
+
+	usr, err := user.Current()
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+
+	// Defaults
+	nowCmd.Flags().BoolVarP(&fNoEntry, "entry", "", true, "Use the default entrypoint. If false you must provide one")
+	nowCmd.Flags().BoolVarP(&fMountPwd, "pwd", "", true, "Mount the PWD into the container (and set as working directory /pwd)")
+	nowCmd.Flags().BoolVarP(&fMountHome, "home", "", true, "Mount the home directory of the user")
+	nowCmd.Flags().StringVarP(&fUser, "user", "", usr.Username, "User override for the command (default is current user)")
+
+	// Optional
+	nowCmd.Flags().BoolVarP(&fPull, "pull", "", false, "Pull the docker image even if present")
 }
 
 // TODO allow port as an easy runtime option as ports may need to be exposed?
@@ -28,6 +49,7 @@ type RunNowOptions struct {
 	Pull			bool
 	Cmd			 strslice.StrSlice
 }
+
 
 var nowCmd = &cobra.Command{
 	Use:   "now",
@@ -39,6 +61,7 @@ var nowCmd = &cobra.Command{
 		})
 		},
 	}
+
 
 func RunNow(options RunNowOptions) (string, error) {
 	cli, err := client.NewEnvClient()
@@ -52,13 +75,15 @@ func RunNow(options RunNowOptions) (string, error) {
 
 	var inout chan []byte
 
-	// TODO optionally Pull
-	//pull(cli,options);
+	if(fPull){
+		pull(cli,options)
+	}
 
 	// TODO ports
-	// TODO volumes
+	// TODO more volumes?
 	cont, err := containerCreate(cli, options)
 
+	// TODO just use AutoRemove in HostConfig
 	// Handle Ctrl + C and exit (removing the container)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
@@ -165,7 +190,7 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 		fmt.Println(err)
 		panic(err)
 	}
-	usr, err := user.Current()
+	usr, err := user.Lookup(fUser)
 	if err != nil {
 		fmt.Println(err)
 		panic(err)
@@ -174,29 +199,57 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 	labels := make(map[string]string)
 	labels["com.github/addshore/docker-thing/created-app"] = "docker-thing"
 	labels["com.github/addshore/docker-thing/created-command"] = "now"
+
+	ContainerConfig := &container.Config{
+		Image: options.Image,
+		Cmd: options.Cmd,
+		AttachStderr:true,
+		AttachStdin: true,
+		Tty:		 true,
+		AttachStdout:true,
+		OpenStdin:   true,
+		Labels: labels,
+		User: usr.Uid + ":" + usr.Gid,
+	}
+	var emptyMountsSliceEntry []mount.Mount
+	HostConfig := &container.HostConfig{
+		Mounts: emptyMountsSliceEntry,
+	}
+
+	if(fMountPwd){
+		ContainerConfig.WorkingDir = "/pwd"
+		HostConfig.Mounts = append(
+			HostConfig.Mounts,
+			mount.Mount{
+				Type:   mount.TypeBind,
+				Source: pwd,
+				Target: "/pwd",
+			},
+		)
+	}
+	if(fMountHome){
+		HostConfig.Mounts = append(
+			HostConfig.Mounts,
+			mount.Mount{
+				Type:   mount.TypeBind,
+				Source: usr.HomeDir,
+				Target: usr.HomeDir,
+			},
+		)
+	}
+	if(fNoEntry){
+		var emptyStrSliceEntry []string
+		ContainerConfig.Entrypoint = emptyStrSliceEntry
+	}
+
 	return cli.ContainerCreate(
 		context.Background(),
-		&container.Config{
-			Image: options.Image,
-			Cmd: options.Cmd,
-			AttachStderr:true,
-			AttachStdin: true,
-			Tty:		 true,
-			AttachStdout:true,
-			OpenStdin:   true,
-			Labels: labels,
-			WorkingDir: "/pwd",
-			User: usr.Uid + ":" + usr.Gid,
-		},
-		&container.HostConfig{
-			Mounts: []mount.Mount{
-				{
-					Type:   mount.TypeBind,
-					Source: pwd,
-					Target: "/pwd",
-				},
-			},
-		}, nil, nil, "");
+		ContainerConfig,
+		HostConfig,
+		nil,
+		nil,
+		"",
+		);
 }
 
 func pull(cli *client.Client, options RunNowOptions) {
