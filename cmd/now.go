@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"strings"
 	"github.com/docker/docker/api/types/strslice"
 	"bufio"
 	"os"
@@ -44,41 +45,14 @@ func RunNow(options RunNowOptions) (string, error) {
 
 	var inout chan []byte
 
-	if(options.Pull){
-		r, err := cli.ImagePull(
-			context.Background(),
-			options.Image,
-			types.ImagePullOptions{},
-		)
-		if err != nil {
-			panic(err)
-		}
-		// TODO fixme this is super verbose...
-		fmt.Println("Error Pulling")
-		io.Copy(os.Stdout, r)
-	}
+	// TODO optionally Pull
+	//pull(cli,options);
 
 	// TODO working directory
 	// TODO ports
 	// TODO volumes
 	// TODO labels?
-	cont, err := cli.ContainerCreate(
-		context.Background(),
-		&container.Config{
-			Image: options.Image,
-			Cmd: options.Cmd,
-			AttachStderr:true,
-			AttachStdin: true,
-			Tty:		 true,
-			AttachStdout:true,
-			OpenStdin:   true,
-		},
-		&container.HostConfig{
-		}, nil, nil, "")
-	if err != nil {
-		fmt.Println("Error Creating")
-		panic(err)
-	}
+	cont, err := containerCreate(cli, options)
 
 	err = cli.ContainerStart(context.Background(), cont.ID, types.ContainerStartOptions{})
 	if err != nil {
@@ -135,4 +109,48 @@ func RunNow(options RunNowOptions) (string, error) {
 	cli.ContainerRemove( context.Background(), cont.ID, types.ContainerRemoveOptions{} )
 
 	return cont.ID, nil
+}
+
+func containerCreate(cli *client.Client, options RunNowOptions) (container.ContainerCreateCreatedBody, error) {
+	cont, err := containerCreateNoPullFallback(cli, options)
+		if err != nil {
+			if !strings.Contains(err.Error()," No such image") {
+				fmt.Println("Error Creating")
+				panic(err)
+			}
+			// Fallback pulling the image once
+			pull(cli,options);
+			return containerCreateNoPullFallback(cli, options)
+		}
+	return cont, err;
+}
+
+func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (container.ContainerCreateCreatedBody, error) {
+	return cli.ContainerCreate(
+		context.Background(),
+		&container.Config{
+			Image: options.Image,
+			Cmd: options.Cmd,
+			AttachStderr:true,
+			AttachStdin: true,
+			Tty:		 true,
+			AttachStdout:true,
+			OpenStdin:   true,
+		},
+		&container.HostConfig{
+		}, nil, nil, "");
+}
+
+func pull(cli *client.Client, options RunNowOptions) {
+	r, err := cli.ImagePull(
+		context.Background(),
+		options.Image,
+		types.ImagePullOptions{},
+	)
+	if err != nil {
+		panic(err)
+	}
+	// TODO fixme this is super verbose...
+	fmt.Println("Error Pulling")
+	io.Copy(os.Stdout, r)
 }
