@@ -1,0 +1,1 @@
+go run ~/go/src/github.com/addshore/docker-thing/main.go $@
