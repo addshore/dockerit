@@ -1,5 +1,5 @@
 {
-	"AppName": "docker-thing",
+	"AppName": "dockerit",
 	"ConfigVersion": "0.9",
 	"BuildSettings": {
 	  "LdFlags": "-s",
