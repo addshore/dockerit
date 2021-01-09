@@ -12,7 +12,6 @@ import (
 	"io"
 	"context"
 	"fmt"
-	"github.com/spf13/cobra"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
@@ -25,8 +24,6 @@ var fMountPwd bool
 var fMountHome bool
 
 func init() {
-	rootCmd.AddCommand(nowCmd)
-
 	usr, err := user.Current()
 	if err != nil {
 		fmt.Println(err)
@@ -34,13 +31,13 @@ func init() {
 	}
 
 	// Defaults
-	nowCmd.Flags().BoolVarP(&fNoEntry, "entry", "", true, "Use the default entrypoint. If false you must provide one")
-	nowCmd.Flags().BoolVarP(&fMountPwd, "pwd", "", true, "Mount the PWD into the container (and set as working directory /pwd)")
-	nowCmd.Flags().BoolVarP(&fMountHome, "home", "", true, "Mount the home directory of the user")
-	nowCmd.Flags().StringVarP(&fUser, "user", "", usr.Username, "User override for the command (default is current user)")
+	rootCmd.Flags().BoolVarP(&fNoEntry, "entry", "", true, "Use the default entrypoint. If false you must provide one")
+	rootCmd.Flags().BoolVarP(&fMountPwd, "pwd", "", true, "Mount the PWD into the container (and set as working directory /pwd)")
+	rootCmd.Flags().BoolVarP(&fMountHome, "home", "", true, "Mount the home directory of the user")
+	rootCmd.Flags().StringVarP(&fUser, "user", "", usr.Username, "User override for the command (default is current user)")
 
 	// Optional
-	nowCmd.Flags().BoolVarP(&fPull, "pull", "", false, "Pull the docker image even if present")
+	rootCmd.Flags().BoolVarP(&fPull, "pull", "", false, "Pull the docker image even if present")
 }
 
 // TODO allow port as an easy runtime option as ports may need to be exposed?
@@ -49,19 +46,6 @@ type RunNowOptions struct {
 	Pull			bool
 	Cmd			 strslice.StrSlice
 }
-
-
-var nowCmd = &cobra.Command{
-	Use:   "now",
-	Run: func(cmd *cobra.Command, args []string) {
-		RunNow(RunNowOptions{
-			Image: args[0],
-			Pull: false,
-			Cmd: args[1:],
-		})
-		},
-	}
-
 
 func RunNow(options RunNowOptions) (string, error) {
 	cli, err := client.NewEnvClient()
