@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/docker/go-connections/nat"
 	"io/ioutil"
 	"os/user"
 	"github.com/docker/docker/api/types/mount"
@@ -17,24 +18,22 @@ import (
 	"github.com/docker/docker/client"
 )
 
+var fPort string
 var fPull bool
 var fUser string
+var fUserMe bool
 var fNoEntry bool
 var fMountPwd bool
 var fMountHome bool
 
 func init() {
-	usr, err := user.Current()
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
-
 	// Defaults
+	rootCmd.Flags().StringVarP(&fPort, "port", "", "", "Port mapping <host>:<container> eg. 8080:80")
 	rootCmd.Flags().BoolVarP(&fNoEntry, "entry", "", true, "Use the default entrypoint. If false you must provide one")
 	rootCmd.Flags().BoolVarP(&fMountPwd, "pwd", "", true, "Mount the PWD into the container (and set as working directory /pwd)")
 	rootCmd.Flags().BoolVarP(&fMountHome, "home", "", true, "Mount the home directory of the user")
-	rootCmd.Flags().StringVarP(&fUser, "user", "", usr.Username, "User override for the command (default is current user)")
+	rootCmd.Flags().StringVarP(&fUser, "user", "", "", "User override for the command")
+	rootCmd.Flags().BoolVarP(&fUserMe, "me", "", false, "User override for the command, runs as current user")
 
 	// Optional
 	rootCmd.Flags().BoolVarP(&fPull, "pull", "", false, "Pull the docker image even if present")
@@ -171,11 +170,6 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 		fmt.Println(err)
 		panic(err)
 	}
-	usr, err := user.Lookup(fUser)
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
 
 	labels := make(map[string]string)
 	labels["com.github/addshore/docker-thing/created-app"] = "docker-thing"
@@ -190,14 +184,60 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 		AttachStdout:true,
 		OpenStdin:   true,
 		Labels: labels,
-		User: usr.Uid + ":" + usr.Gid,
 	}
+
 	var emptyMountsSliceEntry []mount.Mount
 	HostConfig := &container.HostConfig{
 		Mounts: emptyMountsSliceEntry,
 		AutoRemove: true,
 	}
 
+	runAs := fUser
+	if(fUserMe) {
+		currentUser, err := user.Current()
+		if err != nil {
+			fmt.Println(err)
+			panic(err)
+		}
+		runAs = currentUser.Username
+	}
+	if(len(runAs)>0) {
+		usr, err := user.Lookup(runAs)
+		if err != nil {
+			fmt.Println(err)
+			panic(err)
+		}
+		ContainerConfig.User = usr.Uid + ":" + usr.Gid
+		// TODO die if not running as a known user?
+		// TODO check if the home dir actually exists?
+		if(fMountHome){
+			HostConfig.Mounts = append(
+				HostConfig.Mounts,
+				mount.Mount{
+					Type:   mount.TypeBind,
+					Source: usr.HomeDir,
+					Target: usr.HomeDir,
+				},
+			)
+		}
+	}
+
+	if(len(fPort)>0){
+		splits := strings.Split(fPort, ":")
+		hostPortString, containerPortString := splits[0], splits[1]
+		containerPort := nat.Port(containerPortString+"/tcp")
+		ContainerConfig.ExposedPorts = nat.PortSet{
+			containerPort: {},
+		}
+		HostConfig.PortBindings = nat.PortMap{
+			containerPort: []nat.PortBinding{
+				{
+					HostIP: "0.0.0.0",
+					HostPort: hostPortString,
+				},
+			},
+		}
+	}
 	if(fMountPwd){
 		ContainerConfig.WorkingDir = "/pwd"
 		HostConfig.Mounts = append(
@@ -206,16 +246,6 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 				Type:   mount.TypeBind,
 				Source: pwd,
 				Target: "/pwd",
-			},
-		)
-	}
-	if(fMountHome){
-		HostConfig.Mounts = append(
-			HostConfig.Mounts,
-			mount.Mount{
-				Type:   mount.TypeBind,
-				Source: usr.HomeDir,
-				Target: usr.HomeDir,
 			},
 		)
 	}
@@ -242,10 +272,10 @@ func pull(cli *client.Client, options RunNowOptions) {
 		types.ImagePullOptions{},
 	)
 	if err != nil {
+		fmt.Println("Error Pulling")
 		panic(err)
 	}
 	// TODO fixme this is super verbose...
-	fmt.Println("Error Pulling")
 	if Verbose {
 		io.Copy(os.Stdout, r)
 	} else {
