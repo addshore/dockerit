@@ -67,7 +67,6 @@ func RunNow(options RunNowOptions) (string, error) {
 	// TODO more volumes?
 	cont, err := containerCreate(cli, options)
 
-	// TODO just use AutoRemove in HostConfig
 	// Handle Ctrl + C and exit (removing the container)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
@@ -75,11 +74,9 @@ func RunNow(options RunNowOptions) (string, error) {
 		for range c {
 			// sig is a ^C, handle it
 			if Verbose {
-				fmt.Println("Removing container");
+				fmt.Println("Stopping container");
 			}
-			cli.ContainerRemove( context.Background(), cont.ID, types.ContainerRemoveOptions{
-				Force: true,
-				} )
+			cli.ContainerStop( context.Background(), cont.ID, nil )
 			os.Exit(1)
 		}
 	}()
@@ -198,6 +195,7 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 	var emptyMountsSliceEntry []mount.Mount
 	HostConfig := &container.HostConfig{
 		Mounts: emptyMountsSliceEntry,
+		AutoRemove: true,
 	}
 
 	if(fMountPwd){

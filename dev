@@ -1,2 +1,2 @@
 # Shotcut to run the development cli application
-go run ~/go/src/github.com/addshore/docker-thing/main.go $@
+go run ~/go/src/github.com/addshore/dockerit/main.go $@
