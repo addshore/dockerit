@@ -1,4 +1,4 @@
-# docker-thing
+# dockerit
 
 Command for docker things.
 
@@ -12,50 +12,59 @@ Containers are deleted after the command has run.
 
 ```
 Usage:
-  dt now [flags]
+  dockerit [image]
+  dockerit [image] [command]
+  dockerit [flags] [image] [command] -- [command flags]
 
 Flags:
-      --entry         Use the default entrypoint. If false you must provide one (default true)
-  -h, --help          help for now
-      --home          Mount the home directory of the user (default true)
+      --entry         Use the default entrypoint. If entry=0 you must provide one (default true)
+  -h, --help          help for dockerit
+      --home          Mount the home directory of the user
+      --me            User override for the command, runs as current user
+      --port string   Port mapping <host>:<container> eg. 8080:80
       --pull          Pull the docker image even if present
-      --pwd           Mount the PWD into the container (and set as working directory /pwd) (default true)
-      --user string   User override for the command (default is current user) (default "CURRENTUSER")
-
-Global Flags:
-  -v, --verbose   verbose output
+      --pwd           Mount the PWD into the container (and set as working directory /pwd)
+      --user string   User override for the command
+  -v, --verbose       verbose output
+      --version       version infomation
 ```
 
 ## Example usage
 
+Output help infomation:
+
+```sh
+dockerit --help
+```
+
 Run an interactive shell in the latest php image:
 
 ```sh
-docker-thing now php -- -a
+dockerit php -- -a
 ```
 
 Run an bash in the latest ubuntu image (overriding default point):
 
 ```sh
-docker-thing now --entry=0 --user=root ubuntu bash
+dockerit --entry=0 --user=root ubuntu bash
 ```
 
-Run composer version 1 info in the current working directory:
+Run composer version 1 info in the current working directory as the current user with their home dir mounted:
 
 ```sh
-docker-thing now --pwd composer:1 info
+dockerit --me --pwd --home composer:1 info
 ```
 
-Run git in the current working directory, with your home directory mounted
+Run git in the current working directory as the current user with their home dir mounted:
 
 ```sh
-docker-thing now --home git config -- --list
+dockerit --me --pwd --home git config -- --list
 ```
 
-Run a command with the tools verbose mode turned on
+Run a command in an image with verbose mode turned on:
 
 ```sh
-docker-thing now --verbose <image> <command>
+dockerit --verbose [image] [command]
 ```
 
 

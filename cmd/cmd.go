@@ -29,9 +29,9 @@ var fMountHome bool
 func init() {
 	// Defaults
 	rootCmd.Flags().StringVarP(&fPort, "port", "", "", "Port mapping <host>:<container> eg. 8080:80")
-	rootCmd.Flags().BoolVarP(&fNoEntry, "entry", "", true, "Use the default entrypoint. If false you must provide one")
-	rootCmd.Flags().BoolVarP(&fMountPwd, "pwd", "", true, "Mount the PWD into the container (and set as working directory /pwd)")
-	rootCmd.Flags().BoolVarP(&fMountHome, "home", "", true, "Mount the home directory of the user")
+	rootCmd.Flags().BoolVarP(&fNoEntry, "entry", "", true, "Use the default entrypoint. If entry=0 you must provide one")
+	rootCmd.Flags().BoolVarP(&fMountPwd, "pwd", "", false, "Mount the PWD into the container (and set as working directory /pwd)")
+	rootCmd.Flags().BoolVarP(&fMountHome, "home", "", false, "Mount the home directory of the user")
 	rootCmd.Flags().StringVarP(&fUser, "user", "", "", "User override for the command")
 	rootCmd.Flags().BoolVarP(&fUserMe, "me", "", false, "User override for the command, runs as current user")
 

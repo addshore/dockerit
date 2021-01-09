@@ -25,9 +25,9 @@ var rootCmd = &cobra.Command{
 	Use: `dockerit [image]
   dockerit [image] [command]
   dockerit [flags] [image] [command] -- [command flags]`,
-	Example:`  dockerit --pwd=0 php -- -a
-  dockerit --entry --user=root --pwd=0 ubuntu bash
-  dockerit --pwd composer:1 update -- --ignore-platform-reqs`,
+	Example:`  dockerit php -- -a
+  dockerit --entry --user=root ubuntu bash
+  dockerit --me --pwd --home composer:1 update -- --ignore-platform-reqs`,
 	Short: "Run it in docker",
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
