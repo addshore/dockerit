@@ -8,11 +8,11 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "dt",
-  }
-  
-  func Execute() {
+}
+
+func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-	  fmt.Fprintln(os.Stderr, err)
-	  os.Exit(1)
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
-  }
+}
