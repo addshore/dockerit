@@ -1,6 +1,7 @@
 # dockerit
 
 [![Release](https://img.shields.io/github/release/addshore/dockerit.svg?style=flat-square)](https://github.com/addshore/dockerit/releases/latest)
+![Tested Docker Versions](https://img.shields.io/badge/tested%20docker%20versions-18%2019%2020-blue)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Go Report Card](https://goreportcard.com/badge/github.com/addshore/dockerit?style=flat-square)](https://goreportcard.com/report/github.com/addshore/dockerit)
 
