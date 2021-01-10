@@ -2,10 +2,9 @@
 	"AppName": "dockerit",
 	"ConfigVersion": "0.9",
 	"BuildSettings": {
-	  "LdFlags": "-s",
-	  "LdFlagsXVars": {
-		"Version": "main.VERSION"
-	  }
-	},
-	"Tasks": ["interpolate-source", "default"]
-  }
+		"LdFlags": "-s",
+		"LdFlagsXVars": {
+			"Version": "main.VERSION"
+		}
+	}
+}
