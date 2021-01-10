@@ -5,15 +5,17 @@ import (
 	"os"
 	"fmt"
 )
-var appVersion string
+var myVersion string
+var mySourceDate string
 
 var Verbose bool
 var Version bool
 
-func Execute(mainVersion string) {
+func Execute(appVersion string, appSourceDate string) {
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVarP(&Version, "version", "", false, "version infomation")
-	appVersion = mainVersion
+	myVersion = appVersion
+	mySourceDate = appSourceDate
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -31,7 +33,8 @@ var rootCmd = &cobra.Command{
 	Short: "Run it in docker",
 	Run: func(cmd *cobra.Command, args []string) {
 		if(Version){
-			fmt.Println("Version: " + appVersion)
+			fmt.Println("Version: " + myVersion)
+			fmt.Println("Built at : " + mySourceDate)
 			os.Exit(0)
 		}
 

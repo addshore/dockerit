@@ -28,7 +28,7 @@ jobs:
       run: go get github.com/laher/goxc
 
     - name: Goxc Build
-      run: export BUILD_VERSION=$(make githubversion) && export GOPATH=$(go env GOPATH) && make build
+      run: export VERSION=$(make githubversion) && export GOPATH=$(go env GOPATH) && make build
 
     - name: Goxc Upload Build Artifacts
       uses: actions/upload-artifact@v2

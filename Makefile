@@ -1,19 +1,19 @@
 BUILD_DATE := $(shell date --utc +"%Y%m%dT%H%M%S")
-BUILD_VERSION?=dev@$(BUILD_DATE)
-GITHUB_VERSION := $(subst /,-,$(GITHUB_REF)_$(GITHUB_SHA)_$(GITHUB_RUN_ID)@$(BUILD_DATE))
+VERSION?=dev
+GITHUB_VERSION := $(subst /,-,$(GITHUB_REF)_$(GITHUB_SHA)_$(GITHUB_RUN_ID))
 
 clean:
 	@rm -rf ./build
 
 build: clean
 	@$(GOPATH)/bin/goxc \
-			-bc="linux,386" \
-		-pv=$(BUILD_VERSION) \
+		-bc="linux,windows" \
+		-pv=$(VERSION) \
 		-d=build \
-		-build-ldflags "-X main.VERSION=$(BUILD_VERSION)"
+		-build-ldflags "-X main.VERSION=$(VERSION)"
 
 version:
-	@echo $(BUILD_VERSION)
+	@echo $(VERSION)
 
 githubversion:
 	@echo dev@$(GITHUB_VERSION)
