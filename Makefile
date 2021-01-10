@@ -1,4 +1,4 @@
-BUILD_DATE := $(shell date --utc +"%Y%m%dT%H%M%S")
+SOURCE_DATE := $(shell date --utc +"%Y-%m-%dT%H:%M:%S")
 VERSION?=dev
 GITHUB_VERSION := $(subst /,-,$(GITHUB_REF)_$(GITHUB_SHA)_$(GITHUB_RUN_ID))
 
@@ -10,7 +10,7 @@ build: clean
 		-bc="linux,windows" \
 		-pv=$(VERSION) \
 		-d=build \
-		-build-ldflags "-X main.VERSION=$(VERSION)"
+		-build-ldflags "-X main.VERSION=$(VERSION) -X main.SOURCE_DATE=$(SOURCE_DATE)"
 
 version:
 	@echo $(VERSION)
