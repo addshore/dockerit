@@ -1,4 +1,4 @@
-module github.com/addshore/docker-thing
+module github.com/addshore/dockerit
 
 go 1.14
 

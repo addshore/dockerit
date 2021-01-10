@@ -172,8 +172,8 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 	}
 
 	labels := make(map[string]string)
-	labels["com.github/addshore/docker-thing/created-app"] = "docker-thing"
-	labels["com.github/addshore/docker-thing/created-command"] = "now"
+	labels["com.github/addshore/dockerit/created-app"] = "dockerit"
+	labels["com.github/addshore/dockerit/created-command"] = "now"
 
 	ContainerConfig := &container.Config{
 		Image: options.Image,

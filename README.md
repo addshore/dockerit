@@ -104,4 +104,10 @@ Then build...
 make build
 ```
 
+If you want to build with a specific version number / name:
+
+```sh
+BUILD_VERSION=foo make version
+```
+
 The `build` directory will be populated with the release.

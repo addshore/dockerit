@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/addshore/docker-thing/cmd"
+	"github.com/addshore/dockerit/cmd"
 )
 
 var (
 	// VERSION is set during build
-	VERSION = "0.0.1"
+	VERSION = "dev"
 )
 
 func main() {
