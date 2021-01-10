@@ -47,7 +47,7 @@ type RunNowOptions struct {
 }
 
 func RunNow(options RunNowOptions) (string, error) {
-	cli, err := client.NewEnvClient()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		fmt.Println("Unable to create docker client")
 		panic(err)
@@ -96,7 +96,6 @@ func RunNow(options RunNowOptions) (string, error) {
 				fmt.Println("Terminal: make raw ERROR")
 			}
 		}
-		defer terminal.Restore(fd, oldState)
 
 		// Wrapper around Stdin for the container, to detect Ctrl+C (as we are in raw mode)
 		go func() {
@@ -130,8 +129,10 @@ func RunNow(options RunNowOptions) (string, error) {
 	if Verbose {
 		fmt.Println("Restoring terminal");
 	}
-	// TODO fixme, this call might be duplicated
-	terminal.Restore(fd, oldState)
+	// TODO use defer for some of these things
+	if terminal.IsTerminal(fd) {
+		terminal.Restore(fd, oldState)
+	}
 	fmt.Println("");
 
 	if Verbose {
