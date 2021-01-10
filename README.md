@@ -4,7 +4,7 @@ Command for docker things.
 
 ## Installation
 
-TBA
+Head to the [releases page](https://github.com/addshore/dockerit/releases) and download the latest version for your system.
 
 ## Features
 
