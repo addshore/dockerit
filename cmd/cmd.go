@@ -1,14 +1,13 @@
 package cmd
 
 import (
+	"bufio"
 	"github.com/docker/go-connections/nat"
 	"io/ioutil"
 	"os/user"
 	"github.com/docker/docker/api/types/mount"
-	"os/signal"
 	"strings"
 	"github.com/docker/docker/api/types/strslice"
-	"bufio"
 	"os"
 	"io"
 	"context"
@@ -16,6 +15,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 var fPort string
@@ -56,29 +56,15 @@ func RunNow(options RunNowOptions) (string, error) {
 		fmt.Println("Docker client loaded");
 	}
 
-	var inout chan []byte
-
 	if(fPull){
 		pull(cli,options)
 	}
 
-	// TODO ports
 	// TODO more volumes?
 	cont, err := containerCreate(cli, options)
-
-	// Handle Ctrl + C and exit (removing the container)
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func(){
-		for range c {
-			// sig is a ^C, handle it
-			if Verbose {
-				fmt.Println("Stopping container");
-			}
-			cli.ContainerStop( context.Background(), cont.ID, nil )
-			os.Exit(1)
-		}
-	}()
+	if Verbose {
+		fmt.Println("Created container: " + cont.ID);
+	}
 
 	waiter, err := cli.ContainerAttach(context.Background(), cont.ID, types.ContainerAttachOptions{
 		Stderr:	   true,
@@ -89,43 +75,48 @@ func RunNow(options RunNowOptions) (string, error) {
 
 	go io.Copy(os.Stdout, waiter.Reader)
 	go io.Copy(os.Stderr, waiter.Reader)
+	// Stdin goes through a wrapper that listens for Ctrl+C. So we don't copy it here
+	//go io.Copy(waiter.Conn, os.Stdin)
 
 	if Verbose {
-		fmt.Println("Starting container");
+		fmt.Println("Starting container: " + cont.ID);
 	}
 	err = cli.ContainerStart(context.Background(), cont.ID, types.ContainerStartOptions{})
 	if err != nil {
-		fmt.Println("Error Starting")
+		fmt.Println("Error Starting container: " + cont.ID)
 		panic(err)
 	}
 
-	go io.Copy(waiter.Conn, os.Stdin)
-
-	if err != nil {
-		panic(err)
-	}
-
-	go func() {
-		scanner := bufio.NewScanner(os.Stdin)
-		for scanner.Scan() {
-			inout <- []byte(scanner.Text())
-		}
-	}()
-
-	// Write to docker container
-	go func(w io.WriteCloser) {
-		for {
-			data, ok := <-inout
-			//log.Println("Received to send to docker", string(data))
-			if !ok {
-				fmt.Println("!ok")
-				w.Close()
-				return
+	fd := int(os.Stdin.Fd())
+	var oldState *terminal.State
+	if terminal.IsTerminal(fd) {
+		oldState, err = terminal.MakeRaw(fd)
+		if err != nil {
+			if (Verbose){
+				fmt.Println("Terminal: make raw ERROR")
 			}
-
-			w.Write(append(data, '\n'))
 		}
-	}(waiter.Conn)
+		defer terminal.Restore(fd, oldState)
+
+		// Wrapper around Stdin for the container, to detect Ctrl+C (as we are in raw mode)
+		go func() {
+			for {
+				consoleReader := bufio.NewReaderSize(os.Stdin, 1)
+				input, _ := consoleReader.ReadByte()
+				// Ctrl-C = 3
+				if input == 3 {
+					if (Verbose){
+						fmt.Println("Detected Ctrl+C, so telling docker to remove the container: " + cont.ID)
+					}
+					// Tell docker to forcefully remove the container
+					cli.ContainerRemove( context.Background(), cont.ID, types.ContainerRemoveOptions{
+						Force: true,
+					} )
+				}
+				waiter.Conn.Write([]byte{input})
+		}
+		}()
+	}
 
 	statusCh, errCh := cli.ContainerWait(context.Background(), cont.ID, container.WaitConditionNotRunning)
 	select {
@@ -137,9 +128,18 @@ func RunNow(options RunNowOptions) (string, error) {
 	}
 
 	if Verbose {
-		fmt.Println("Removing container");
+		fmt.Println("Restoring terminal");
 	}
-	cli.ContainerRemove( context.Background(), cont.ID, types.ContainerRemoveOptions{} )
+	// TODO fixme, this call might be duplicated
+	terminal.Restore(fd, oldState)
+	fmt.Println("");
+
+	if Verbose {
+		fmt.Println("Ensuring Container Removal: " + cont.ID);
+	}
+	cli.ContainerRemove( context.Background(), cont.ID, types.ContainerRemoveOptions{
+		Force: true,
+	} )
 
 	return cont.ID, nil
 }
