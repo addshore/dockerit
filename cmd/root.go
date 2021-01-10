@@ -29,10 +29,15 @@ var rootCmd = &cobra.Command{
   dockerit --entry --user=root ubuntu bash
   dockerit --me --pwd --home composer:1 update -- --ignore-platform-reqs`,
 	Short: "Run it in docker",
-	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		if(Version){
 			fmt.Println("Version: " + appVersion)
+			os.Exit(0)
+		}
+
+		if(len(args)== 0) {
+			fmt.Println("Error: requires at least 1 arg(s), only received 0")
+			fmt.Println("Use --help to see help text")
 			os.Exit(0)
 		}
 
