@@ -2,19 +2,20 @@ package cmd
 
 import (
 	"bufio"
-	"github.com/docker/go-connections/nat"
-	"io/ioutil"
-	"os/user"
-	"github.com/docker/docker/api/types/mount"
-	"strings"
-	"github.com/docker/docker/api/types/strslice"
-	"os"
-	"io"
 	"context"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
+	"os/user"
+	"strings"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
+	"github.com/docker/docker/api/types/strslice"
 	"github.com/docker/docker/client"
+	"github.com/docker/go-connections/nat"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -99,8 +100,8 @@ func RunNow(options RunNowOptions) (string, error) {
 
 		// Wrapper around Stdin for the container, to detect Ctrl+C (as we are in raw mode)
 		go func() {
+			consoleReader := bufio.NewReaderSize(os.Stdin, 1)
 			for {
-				consoleReader := bufio.NewReaderSize(os.Stdin, 1)
 				input, _ := consoleReader.ReadByte()
 				// Ctrl-C = 3
 				if input == 3 {
@@ -111,6 +112,9 @@ func RunNow(options RunNowOptions) (string, error) {
 					cli.ContainerRemove( context.Background(), cont.ID, types.ContainerRemoveOptions{
 						Force: true,
 					} )
+				}
+				if (Verbose){
+					fmt.Println("\nWriting byte: " + string([]byte{input}))
 				}
 				waiter.Conn.Write([]byte{input})
 		}
