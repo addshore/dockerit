@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.4 (7 February 2021)
+
+- Fix `runtime error: slice bounds out of range` when outputing [#3](https://github.com/addshore/dockerit/issues/3)
+
 ## 0.0.3 (7 February 2021)
 
 - Add --env flag [#2](https://github.com/addshore/dockerit/issues/2)

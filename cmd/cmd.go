@@ -77,10 +77,9 @@ func RunNow(options RunNowOptions) (string, error) {
 		Stream:	   true,
 	})
 
+	// When TTY is ON, just copy stdout
+	// See: https://github.com/docker/cli/blob/70a00157f161b109be77cd4f30ce0662bfe8cc32/cli/command/container/hijack.go#L121-L130
 	go io.Copy(os.Stdout, waiter.Reader)
-	go io.Copy(os.Stderr, waiter.Reader)
-	// Stdin goes through a wrapper that listens for Ctrl+C. So we don't copy it here
-	//go io.Copy(waiter.Conn, os.Stdin)
 
 	if Verbose {
 		fmt.Println("Starting container: " + cont.ID);
