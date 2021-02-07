@@ -9,7 +9,7 @@ Command to easily run things in docker containers, with simple parameters and au
 
 ## Installation
 
-Head to the [releases page](https://github.com/addshore/dockerit/releases) and download the latest version for your system.
+Head to the [releases page](https://github.com/addshore/dockerit/releases) and download the latest version for your system, adding it to your PATH.
 
 ## Features
 
