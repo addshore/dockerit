@@ -1,9 +1,9 @@
 # Change Log
 
-## 0.0.3 (TBA)
+## 0.0.3 (7 February 2021)
 
-- Add --env flag
-- Fix input issues (including copy and paste)
+- Add --env flag [#2](https://github.com/addshore/dockerit/issues/2)
+- Fix input issues (including copy and paste) [#4](https://github.com/addshore/dockerit/issues/4)
 
 ## 0.0.2 (10 January 2021)
 

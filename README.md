@@ -79,7 +79,6 @@ Run a command in an image with verbose mode turned on:
 dockerit --verbose [image] [command]
 ```
 
-
 ## Development
 
 ### Dependencies
