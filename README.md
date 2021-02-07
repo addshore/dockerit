@@ -5,15 +5,13 @@
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Go Report Card](https://goreportcard.com/badge/github.com/addshore/dockerit?style=flat-square)](https://goreportcard.com/report/github.com/addshore/dockerit)
 
-Command for docker things.
+Command to easily run things in docker containers, with simple parameters and automatic cleanup.
 
 ## Installation
 
 Head to the [releases page](https://github.com/addshore/dockerit/releases) and download the latest version for your system.
 
 ## Features
-
-Containers are deleted after the command has run.
 
 ```
 Usage:
@@ -37,6 +35,17 @@ Flags:
 
 ## Example usage
 
+### With bash aliases
+
+```sh
+alias composer1-7='dockerit --me --pwd --home --env COMPOSER_HOME=~/.composer composer@sha256:d374b2e1f715621e9d9929575d6b35b11cf4a6dc237d4a08f2e6d1611f534675 --'
+alias composer1='dockerit --me --pwd --home --env COMPOSER_HOME=~/.composer composer:1 --'
+alias composer2='dockerit --me --pwd --home --env COMPOSER_HOME=~/.composer composer:2 --'
+alias composer='composer1-7'
+```
+
+### Individual commands
+
 Output help infomation:
 
 ```sh
@@ -58,7 +67,7 @@ dockerit --entry=0 --user=root ubuntu bash
 Run composer version 1 info in the current working directory as the current user with their home dir mounted and set as the composer home:
 
 ```sh
-dockerit --me --pwd --home COMPOSER_HOME=~/.composer composer:1 info
+dockerit --me --pwd --home --env COMPOSER_HOME=~/.composer composer:1 info
 ```
 
 Run nginx as the container user and expose it on port 8080:
