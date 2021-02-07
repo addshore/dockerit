@@ -22,16 +22,17 @@ Usage:
   dockerit [flags] [image] [command] -- [command flags]
 
 Flags:
-      --entry         Use the default entrypoint. If entry=0 you must provide one (default true)
-  -h, --help          help for dockerit
-      --home          Mount the home directory of the user
-      --me            User override for the command, runs as current user
-      --port string   Port mapping <host>:<container> eg. 8080:80
-      --pull          Pull the docker image even if present
-      --pwd           Mount the PWD into the container (and set as working directory /pwd)
-      --user string   User override for the command
-  -v, --verbose       verbose output
-      --version       version infomation
+      --entry             Use the default entrypoint. If entry=0 you must provide one (default true)
+  -e, --env stringArray   Set environment variables
+  -h, --help              help for dockerit
+      --home              Mount the home directory of the user
+      --me                User override for the command, runs as current user
+      --port string       Port mapping <host>:<container> eg. 8080:80
+      --pull              Pull the docker image even if present
+      --pwd               Mount the PWD into the container (and set as working directory /pwd)
+      --user string       User override for the command
+  -v, --verbose           verbose output
+      --version           version infomation
 ```
 
 ## Example usage
@@ -54,10 +55,10 @@ Run an bash in the latest ubuntu image (overriding default point):
 dockerit --entry=0 --user=root ubuntu bash
 ```
 
-Run composer version 1 info in the current working directory as the current user with their home dir mounted:
+Run composer version 1 info in the current working directory as the current user with their home dir mounted and set as the composer home:
 
 ```sh
-dockerit --me --pwd --home composer:1 info
+dockerit --me --pwd --home COMPOSER_HOME=~/.composer composer:1 info
 ```
 
 Run nginx as the container user and expose it on port 8080:

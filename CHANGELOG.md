@@ -2,6 +2,7 @@
 
 ## 0.0.3 (TBA)
 
+- Add --env flag
 - Fix input issues (including copy and paste)
 
 ## 0.0.2 (10 January 2021)

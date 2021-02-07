@@ -21,6 +21,7 @@ import (
 
 var fPort string
 var fPull bool
+var fEnv []string
 var fUser string
 var fUserMe bool
 var fNoEntry bool
@@ -35,6 +36,7 @@ func init() {
 	rootCmd.Flags().BoolVarP(&fMountHome, "home", "", false, "Mount the home directory of the user")
 	rootCmd.Flags().StringVarP(&fUser, "user", "", "", "User override for the command")
 	rootCmd.Flags().BoolVarP(&fUserMe, "me", "", false, "User override for the command, runs as current user")
+	rootCmd.Flags().StringArrayVarP(&fEnv, "env", "e", []string{}, "Set environment variables")
 
 	// Optional
 	rootCmd.Flags().BoolVarP(&fPull, "pull", "", false, "Pull the docker image even if present")
@@ -42,9 +44,10 @@ func init() {
 
 // TODO allow port as an easy runtime option as ports may need to be exposed?
 type RunNowOptions struct {
-	Image		   string
-	Pull			bool
-	Cmd			 strslice.StrSlice
+	Image		string
+	Pull		bool
+	Cmd			strslice.StrSlice
+	Env			[]string
 }
 
 func RunNow(options RunNowOptions) (string, error) {
@@ -183,6 +186,7 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 	ContainerConfig := &container.Config{
 		Image: options.Image,
 		Cmd: options.Cmd,
+		Env: options.Env,
 		AttachStderr:true,
 		AttachStdin: true,
 		Tty:		 true,
@@ -262,6 +266,8 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 		var emptyStrSliceEntry []string
 		ContainerConfig.Entrypoint = emptyStrSliceEntry
 	}
+
+	ContainerConfig.Env = fEnv
 
 	return cli.ContainerCreate(
 		context.Background(),
