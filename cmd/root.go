@@ -1,19 +1,28 @@
 package cmd
 
 import (
-	"github.com/spf13/cobra"
-	"os"
 	"fmt"
+	"log"
+	"os"
+	"strings"
+
+	"github.com/blang/semver"
+	"github.com/rhysd/go-github-selfupdate/selfupdate"
+	"github.com/spf13/cobra"
 )
 var myVersion string
 var mySourceDate string
 
 var Verbose bool
 var Version bool
+var SelfUpdate bool
 
 func Execute(appVersion string, appSourceDate string) {
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVarP(&Version, "version", "", false, "version infomation")
+
+	rootCmd.Flags().BoolVarP(&SelfUpdate, "selfupdate", "", false, "Update this command to the latest release from Github")
+
 	myVersion = appVersion
 	mySourceDate = appSourceDate
 
@@ -35,6 +44,26 @@ var rootCmd = &cobra.Command{
 		if(Version){
 			fmt.Println("Version: " + myVersion)
 			fmt.Println("Built at : " + mySourceDate)
+			os.Exit(0)
+		}
+
+		if(SelfUpdate){
+			if(Verbose){
+				selfupdate.EnableLog()
+			}
+			v := semver.MustParse(strings.Trim(myVersion,"v"))
+			latest, err := selfupdate.UpdateSelf(v, "addshore/dockerit")
+			if err != nil {
+				log.Println("Binary update failed:", err)
+				return
+			}
+			if latest.Version.Equals(v) {
+				// latest version is the same as current version. It means current binary is up to date.
+				log.Println("Current binary is the latest version", myVersion)
+			} else {
+				log.Println("Successfully updated to version", latest.Version)
+				log.Println("Release note:\n", latest.ReleaseNotes)
+			}
 			os.Exit(0)
 		}
 
