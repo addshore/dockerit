@@ -11,6 +11,9 @@ func Test_imageRefMatchesImageName(t *testing.T) {
 	}
 
 	tests := []test{
+		{match: true, imageRef: "node", imageName: "node"},
+		{match: true, imageRef: "node:latest", imageName: "node"},
+		{match: true, imageRef: "node@aDigest", imageName: "node"},
 		{match: true, imageRef: "composer", imageName: "composer"},
 		{match: true, imageRef: "composer:1", imageName: "composer"},
 		{match: true, imageRef: "composer@foobar", imageName: "composer"},

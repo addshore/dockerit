@@ -44,6 +44,9 @@ Flags:
 alias composer1='dockerit --magic composer:1 -- composer'
 alias composer2='dockerit --magic composer:2 -- composer'
 alias composer='composer2'
+
+# npm
+alias npm='dockerit --magic node -- npm'
 ```
 
 ### Individual commands

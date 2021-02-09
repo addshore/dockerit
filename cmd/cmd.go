@@ -60,15 +60,28 @@ func RunNow(options RunNowOptions) (string, error) {
 		fmt.Println("Docker client loaded");
 	}
 
+	fmt.Println("Image ref being used: " + options.Image);
+
 	if(fMagic) {
+		fmt.Println("Magic option detected");
+		// TODO break if people set options while using --magic?
 		if(imageRefMatchesImageName(options.Image, "composer")) {
-			// TODO break if people set options while using --magic?
 			fMountPwd = true
 			fMountHome = true
 			fUserMe = true
 			// TODO handle error
 			home, _ := os.UserHomeDir()
 			fEnv = append(fEnv, "COMPOSER_HOME="+home+"/.composer")
+		}
+		if(imageRefMatchesImageName(options.Image, "node")) {
+			fMountPwd = true
+			fMountHome = true
+			fUserMe = true
+			// TODO handle error
+			home, _ := os.UserHomeDir()
+			// https://docs.npmjs.com/cli/v6/using-npm/config#cache
+			// TODO this is NOT the case on windows...
+			fEnv = append(fEnv, "npm_config_cache="+home+"/.npm")
 		}
 	}
 
@@ -128,7 +141,7 @@ func RunNow(options RunNowOptions) (string, error) {
 					} )
 				}
 				if (Verbose){
-					fmt.Println("\nWriting byte: " + string([]byte{input}))
+					//fmt.Println("\nWriting byte: " + string([]byte{input}))
 				}
 				waiter.Conn.Write([]byte{input})
 		}

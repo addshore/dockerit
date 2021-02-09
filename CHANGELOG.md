@@ -4,6 +4,7 @@
 
 - Add `--magic` command to use some predefined options for various images
   - [composer](https://hub.docker.com/_/composer) with `--me`, `--pwd`, `--home`, `COMPOSER_HOME`
+  - [node](https://hub.docker.com/_/node) with `--me`, `--pwd`, `--home`, `npm_config_cache`
 
 ## 0.0.4 (7 February 2021)
 
