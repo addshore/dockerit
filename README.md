@@ -39,9 +39,9 @@ Flags:
 ### With bash aliases
 
 ```sh
-alias composer1-7='dockerit --me --pwd --home --env COMPOSER_HOME=~/.composer composer@sha256:d374b2e1f715621e9d9929575d6b35b11cf4a6dc237d4a08f2e6d1611f534675 --'
-alias composer1='dockerit --me --pwd --home --env COMPOSER_HOME=~/.composer composer:1 --'
-alias composer2='dockerit --me --pwd --home --env COMPOSER_HOME=~/.composer composer:2 --'
+alias composer1-7='dockerit --me --pwd --home --env COMPOSER_HOME=~/.composer composer@sha256:d374b2e1f715621e9d9929575d6b35b11cf4a6dc237d4a08f2e6d1611f534675 -- composer'
+alias composer1='dockerit --me --pwd --home --env COMPOSER_HOME=~/.composer composer:1 -- composer'
+alias composer2='dockerit --me --pwd --home --env COMPOSER_HOME=~/.composer composer:2 -- composer'
 alias composer='composer1-7'
 ```
 
