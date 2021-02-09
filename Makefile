@@ -5,6 +5,9 @@ GITHUB_VERSION := $(subst /,-,$(GITHUB_REF)_$(GITHUB_SHA)_$(GITHUB_RUN_ID))
 clean:
 	@rm -rf ./build
 
+test:
+	@go test -v ./...
+
 build: clean
 	@$(GOPATH)/bin/goxc \
 		-bc="linux,windows" \

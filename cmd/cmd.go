@@ -61,7 +61,7 @@ func RunNow(options RunNowOptions) (string, error) {
 	}
 
 	if(fMagic) {
-		if(options.Image == "composer" || ( len(options.Image) >= len("composer")+1 && ( options.Image[:len("composer")+1] == "composer:" || options.Image[:len("composer")+1] == "composer@" ) ) ) {
+		if(imageRefMatchesImageName(options.Image, "composer")) {
 			// TODO break if people set options while using --magic?
 			fMountPwd = true
 			fMountHome = true
