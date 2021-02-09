@@ -19,7 +19,7 @@ var SelfUpdate bool
 
 func Execute(appVersion string, appSourceDate string) {
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
-	rootCmd.PersistentFlags().BoolVarP(&Version, "version", "", false, "version infomation")
+	rootCmd.PersistentFlags().BoolVarP(&Version, "version", "", false, "version information")
 
 	rootCmd.Flags().BoolVarP(&SelfUpdate, "selfupdate", "", false, "Update this command to the latest release from GitHub")
 

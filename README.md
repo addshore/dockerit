@@ -32,7 +32,7 @@ Flags:
       --selfupdate        Update this command to the latest release from GitHub
       --user string       User override for the command
   -v, --verbose           verbose output
-      --version           version infomation
+      --version           version information
 ```
 
 ## Example usage
@@ -51,7 +51,7 @@ alias npm='dockerit --magic node -- npm'
 
 ### Individual commands
 
-Output help infomation:
+Output help information:
 
 ```sh
 dockerit --help
