@@ -45,7 +45,6 @@ func init() {
 // TODO allow port as an easy runtime option as ports may need to be exposed?
 type RunNowOptions struct {
 	Image		string
-	Pull		bool
 	Cmd			strslice.StrSlice
 	Env			[]string
 }

@@ -75,7 +75,6 @@ var rootCmd = &cobra.Command{
 
 		RunNow(RunNowOptions{
 			Image: args[0],
-			Pull: false,
 			Cmd: args[1:],
 		})
 		},
