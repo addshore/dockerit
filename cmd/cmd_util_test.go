@@ -2,9 +2,28 @@ package cmd
 
 import "testing"
 
-func TestSum(t *testing.T) {
-    matches := imageRefMatchesImageName("composer", "composer")
-    if !matches{
-       t.Errorf("ERROR: %s, want: %s.", "A", "B")
-    }
+func Test_imageRefMatchesImageName(t *testing.T) {
+
+	type test struct {
+		match bool
+		imageRef string
+		imageName string
+	}
+
+	tests := []test{
+		{match: true, imageRef: "composer", imageName: "composer"},
+		{match: true, imageRef: "composer:1", imageName: "composer"},
+		{match: true, imageRef: "composer@foobar", imageName: "composer"},
+		{match: true, imageRef: "composer:some-tag", imageName: "composer"},
+		{match: false, imageRef: "compose", imageName: "composer"},
+		{match: false, imageRef: "composerr", imageName: "composer"},
+	}
+
+	for _, tc := range tests {
+		result := imageRefMatchesImageName(tc.imageRef, tc.imageName)
+		if result != tc.match {
+			t.Errorf("Ref match condition failure: ref: %s, image: %s.", tc.imageRef, tc.imageName)
+		}
+	}
+
 }

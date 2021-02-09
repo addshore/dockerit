@@ -8,6 +8,9 @@ clean:
 test:
 	@go test -v ./...
 
+cover:
+	@go test -v ./... -cover
+
 build: clean
 	@$(GOPATH)/bin/goxc \
 		-bc="linux,windows" \
