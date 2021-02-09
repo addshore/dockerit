@@ -24,6 +24,7 @@ var fPull bool
 var fEnv []string
 var fUser string
 var fUserMe bool
+var fMagic bool
 var fNoEntry bool
 var fMountPwd bool
 var fMountHome bool
@@ -36,6 +37,7 @@ func init() {
 	rootCmd.Flags().BoolVarP(&fMountHome, "home", "", false, "Mount the home directory of the user")
 	rootCmd.Flags().StringVarP(&fUser, "user", "", "", "User override for the command")
 	rootCmd.Flags().BoolVarP(&fUserMe, "me", "", false, "User override for the command, runs as current user")
+	rootCmd.Flags().BoolVarP(&fMagic, "magic", "", false, "Magically use magic settings based on the image being used")
 	rootCmd.Flags().StringArrayVarP(&fEnv, "env", "e", []string{}, "Set environment variables")
 
 	// Optional
@@ -56,6 +58,18 @@ func RunNow(options RunNowOptions) (string, error) {
 	}
 	if Verbose {
 		fmt.Println("Docker client loaded");
+	}
+
+	if(fMagic) {
+		if(options.Image == "composer" || ( len(options.Image) >= len("composer")+1 && ( options.Image[:len("composer")+1] == "composer:" || options.Image[:len("composer")+1] == "composer@" ) ) ) {
+			// TODO break if people set options while using --magic?
+			fMountPwd = true
+			fMountHome = true
+			fUserMe = true
+			// TODO handle error
+			home, _ := os.UserHomeDir()
+			fEnv = append(fEnv, "COMPOSER_HOME="+home+"/.composer")
+		}
 	}
 
 	if(fPull){

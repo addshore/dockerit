@@ -24,6 +24,7 @@ Flags:
   -e, --env stringArray   Set environment variables
   -h, --help              help for dockerit
       --home              Mount the home directory of the user
+      --magic             Magically use magic settings based on the image being used
       --me                User override for the command, runs as current user
       --port string       Port mapping <host>:<container> eg. 8080:80
       --pull              Pull the docker image even if present
@@ -39,10 +40,10 @@ Flags:
 ### With bash aliases
 
 ```sh
-alias composer1-7='dockerit --me --pwd --home --env COMPOSER_HOME=~/.composer composer@sha256:d374b2e1f715621e9d9929575d6b35b11cf4a6dc237d4a08f2e6d1611f534675 -- composer'
-alias composer1='dockerit --me --pwd --home --env COMPOSER_HOME=~/.composer composer:1 -- composer'
-alias composer2='dockerit --me --pwd --home --env COMPOSER_HOME=~/.composer composer:2 -- composer'
-alias composer='composer1-7'
+# composer
+alias composer1='dockerit --magic composer:1 -- composer'
+alias composer2='dockerit --magic composer:2 -- composer'
+alias composer='composer2'
 ```
 
 ### Individual commands
@@ -59,16 +60,23 @@ Run an interactive shell in the latest php image:
 dockerit php -- -a
 ```
 
+Some images have a default set of options configured which can be used with `--magic`:
+
+```sh
+dockerit --magic composer:1 info
+```
+
+You can also choose your own option set for the composer version 1 info command.
+Example: Mounth  and u the current working directory as the current user with their home dir mounted and set as the composer home:
+
+```sh
+dockerit --me --pwd --home --env COMPOSER_HOME=~/.composer composer:1 info
+```
+
 Run an bash in the latest ubuntu image (overriding default point):
 
 ```sh
 dockerit --entry=0 --user=root ubuntu bash
-```
-
-Run composer version 1 info in the current working directory as the current user with their home dir mounted and set as the composer home:
-
-```sh
-dockerit --me --pwd --home --env COMPOSER_HOME=~/.composer composer:1 info
 ```
 
 Run nginx as the container user and expose it on port 8080:
