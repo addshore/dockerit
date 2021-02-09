@@ -28,7 +28,7 @@ Flags:
       --port string       Port mapping <host>:<container> eg. 8080:80
       --pull              Pull the docker image even if present
       --pwd               Mount the PWD into the container (and set as working directory /pwd)
-      --selfupdate        Update this command to the latest release from Github
+      --selfupdate        Update this command to the latest release from GitHub
       --user string       User override for the command
   -v, --verbose           verbose output
       --version           version infomation

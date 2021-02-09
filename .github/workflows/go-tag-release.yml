@@ -33,7 +33,7 @@ jobs:
         name: gox-build-output
         path: build
 
-    - name: Create Github Release
+    - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
       env:
@@ -44,7 +44,7 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Upload Github Release Assets
+    - name: Upload GitHub Release Assets
       id: upload-release-assets
       uses: dwenegar/upload-release-assets@v1
       env:
