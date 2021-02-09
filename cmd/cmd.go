@@ -46,7 +46,6 @@ func init() {
 type RunNowOptions struct {
 	Image		string
 	Cmd			strslice.StrSlice
-	Env			[]string
 }
 
 func RunNow(options RunNowOptions) (string, error) {
@@ -184,7 +183,6 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 	ContainerConfig := &container.Config{
 		Image: options.Image,
 		Cmd: options.Cmd,
-		Env: options.Env,
 		AttachStderr:true,
 		AttachStdin: true,
 		Tty:		 true,
