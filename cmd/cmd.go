@@ -19,7 +19,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-var fPort string
+var fPort []string
 var fVolume []string
 var fPull bool
 var fEnv []string
@@ -32,7 +32,7 @@ var fMountHome bool
 
 func init() {
 	// Defaults
-	rootCmd.Flags().StringVarP(&fPort, "port", "", "", "Port mapping <host>:<container> eg. 8080:80")
+	rootCmd.Flags().StringArrayVarP(&fPort, "port", "", []string{}, "Port mapping <host>:<container> eg. 8080:80")
 	rootCmd.Flags().StringArrayVarP(&fVolume, "volume", "", []string{}, "Bind mount a volume eg. $(pwd)/:/pwd")
 	rootCmd.Flags().BoolVarP(&fNoEntry, "entry", "", true, "Use the default entrypoint. If entry=0 you must provide one")
 	rootCmd.Flags().BoolVarP(&fMountPwd, "pwd", "", false, "Mount the PWD into the container (and set as working directory /pwd)")
@@ -218,11 +218,13 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 		AttachStdout:true,
 		OpenStdin:   true,
 		Labels: labels,
+		ExposedPorts: nat.PortSet{},
 	}
 
 	var emptyMountsSliceEntry []mount.Mount
 	HostConfig := &container.HostConfig{
 		Mounts: emptyMountsSliceEntry,
+		PortBindings: nat.PortMap{},
 		AutoRemove: true,
 	}
 
@@ -260,19 +262,15 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 		}
 	}
 
-	if(len(fPort)>0){
-		splits := strings.Split(fPort, ":")
+	for i := 0; i < len(fPort); i++ {
+		splits := strings.Split(fPort[i], ":")
 		hostPortString, containerPortString := splits[0], splits[1]
 		containerPort := nat.Port(containerPortString+"/tcp")
-		ContainerConfig.ExposedPorts = nat.PortSet{
-			containerPort: {},
-		}
-		HostConfig.PortBindings = nat.PortMap{
-			containerPort: []nat.PortBinding{
-				{
-					HostIP: "0.0.0.0",
-					HostPort: hostPortString,
-				},
+		ContainerConfig.ExposedPorts[containerPort] = struct{}{}
+		HostConfig.PortBindings[containerPort] = []nat.PortBinding{
+			{
+				HostIP: "0.0.0.0",
+				HostPort: hostPortString,
 			},
 		}
 	}
