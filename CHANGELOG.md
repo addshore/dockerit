@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.0.5 (TBA)
+## 0.0.5 (20 February 2021)
 
 - Add `--magic` command to use some predefined options for various images
   - [composer](https://hub.docker.com/_/composer) with `--me`, `--pwd`, `--home`, `COMPOSER_HOME`
