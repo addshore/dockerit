@@ -7,6 +7,7 @@
   - [node](https://hub.docker.com/_/node) with `--me`, `--pwd`, `--home`, `npm_config_cache`
 - Add `--volume` flag for a custom volume mount [#8](https://github.com/addshore/dockerit/issues/8)
 - `--port` flag can now be used multiple times
+- `-e` is no longer a shorthand for `--env`
 
 ## 0.0.4 (7 February 2021)
 

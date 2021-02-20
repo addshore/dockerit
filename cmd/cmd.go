@@ -40,7 +40,7 @@ func init() {
 	rootCmd.Flags().StringVarP(&fUser, "user", "", "", "User override for the command")
 	rootCmd.Flags().BoolVarP(&fUserMe, "me", "", false, "User override for the command, runs as current user")
 	rootCmd.Flags().BoolVarP(&fMagic, "magic", "", false, "Magically use magic settings based on the image being used")
-	rootCmd.Flags().StringArrayVarP(&fEnv, "env", "e", []string{}, "Set environment variables")
+	rootCmd.Flags().StringArrayVarP(&fEnv, "env", "", []string{}, "Set environment variables")
 
 	// Optional
 	rootCmd.Flags().BoolVarP(&fPull, "pull", "", false, "Pull the docker image even if present")
