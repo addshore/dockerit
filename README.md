@@ -7,6 +7,8 @@
 
 Command to easily run things in docker containers, with simple parameters and automatic cleanup.
 
+You can read an introductory [blog post here](https://addshore.com/2021/02/dockerit-v0-0-5-easier-than-docker-run/).
+
 ## Installation
 
 Head to the [releases page](https://github.com/addshore/dockerit/releases) and download the latest version for your system, adding it to your PATH.
