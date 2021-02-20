@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.6 (20 February 2021)
+
+- Fix `--selfupdate`, issue with quotes [#9](https://github.com/addshore/dockerit/issues/9)
+
 ## 0.0.5 (20 February 2021)
 
 - Add `--magic` command to use some predefined options for various images
