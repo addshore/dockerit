@@ -20,7 +20,7 @@ import (
 )
 
 var fPort string
-var fVolume string
+var fVolume []string
 var fPull bool
 var fEnv []string
 var fUser string
@@ -33,7 +33,7 @@ var fMountHome bool
 func init() {
 	// Defaults
 	rootCmd.Flags().StringVarP(&fPort, "port", "", "", "Port mapping <host>:<container> eg. 8080:80")
-	rootCmd.Flags().StringVarP(&fVolume, "volume", "", "", "Bind mount a volume eg. $(pwd)/:/pwd")
+	rootCmd.Flags().StringArrayVarP(&fVolume, "volume", "", []string{}, "Bind mount a volume eg. $(pwd)/:/pwd")
 	rootCmd.Flags().BoolVarP(&fNoEntry, "entry", "", true, "Use the default entrypoint. If entry=0 you must provide one")
 	rootCmd.Flags().BoolVarP(&fMountPwd, "pwd", "", false, "Mount the PWD into the container (and set as working directory /pwd)")
 	rootCmd.Flags().BoolVarP(&fMountHome, "home", "", false, "Mount the home directory of the user")
@@ -276,8 +276,9 @@ func containerCreateNoPullFallback(cli *client.Client, options RunNowOptions) (c
 			},
 		}
 	}
-	if(len(fVolume)>0){
-		splits := strings.Split(fVolume, ":")
+
+	for i := 0; i < len(fVolume); i++ {
+		splits := strings.Split(fVolume[i], ":")
 		localPath, containerPath := splits[0], splits[1]
 		HostConfig.Mounts = append(
 			HostConfig.Mounts,
